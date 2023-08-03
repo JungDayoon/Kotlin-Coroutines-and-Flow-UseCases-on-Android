@@ -11,12 +11,12 @@ class FlowUseCase1ViewModel(
     stockPriceDataSource: StockPriceDataSource
 ) : BaseViewModel<UiState>() {
 
-    val currentStockPriceAsLiveData: LiveData<UiState> = MutableLiveData()
+    val currentStockPriceAsLiveData: MutableLiveData<UiState> = MutableLiveData()
 
     init {
         viewModelScope.launch {
             stockPriceDataSource.latestStockList.collect { stockList ->
-                Timber.d("Received item: ${stockList.first()}")
+                currentStockPriceAsLiveData.value = UiState.Success(stockList)
             }
         }
     }
