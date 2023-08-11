@@ -32,6 +32,14 @@ class FlowUseCase1Activity : BaseActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+    }
+
     private fun render(uiState: UiState) {
         when (uiState) {
             is UiState.Loading -> {

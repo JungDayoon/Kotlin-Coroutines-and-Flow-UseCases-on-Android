@@ -1,8 +1,15 @@
 package com.lukaslechner.coroutineusecasesonandroid.usecases.flow.usecase2
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.lukaslechner.coroutineusecasesonandroid.base.BaseViewModel
+import com.lukaslechner.coroutineusecasesonandroid.usecases.flow.mock.Stock
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class FlowUseCase2ViewModel(
     stockPriceDataSource: StockPriceDataSource,
@@ -23,5 +30,42 @@ class FlowUseCase2ViewModel(
 
      */
 
-    val currentStockPriceAsLiveData: LiveData<UiState> = TODO()
+    val currentStockPriceAsLiveData: LiveData<UiState> =
+        stockPriceDataSource.latestStockList
+            .withIndex()
+            .onEach { indexedValue ->
+                Timber.tag("Flow").d("Processing emission: ${indexedValue.index + 1}")
+            }
+            .map { indexedValue ->
+                indexedValue.value
+            }
+            .take(10)
+            .filter { stockList ->
+                val googlePrice = stockList.find { it.name == "Alphabet (Google)" }?.currentPrice
+                    ?: return@filter false
+                googlePrice > 2300
+            }
+            .map { stockList ->
+                stockList.filter {
+                    it.country == "United States"
+                }
+            }
+            .map { stockList ->
+                stockList.filter {
+                    it.name != "Apple" && it.name != "Microsoft"
+                }
+            }
+            .map { stockList ->
+                stockList.mapIndexed { index, stock ->
+                    stock.copy(rank = index + 1)
+                }.take(10)
+            }
+            .map { stockList ->
+                UiState.Success(stockList) as UiState
+            }
+            .onStart {
+                emit(UiState.Loading)
+            }
+            .asLiveData(defaultDispatcher)
+
 }
