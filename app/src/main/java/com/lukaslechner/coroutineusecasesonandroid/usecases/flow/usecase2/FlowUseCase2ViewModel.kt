@@ -2,13 +2,15 @@ package com.lukaslechner.coroutineusecasesonandroid.usecases.flow.usecase2
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
 import com.lukaslechner.coroutineusecasesonandroid.base.BaseViewModel
-import com.lukaslechner.coroutineusecasesonandroid.usecases.flow.mock.Stock
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.withIndex
 import timber.log.Timber
 
 class FlowUseCase2ViewModel(
@@ -50,6 +52,7 @@ class FlowUseCase2ViewModel(
                     it.country == "United States"
                 }
             }
+            .cancellable()
             .map { stockList ->
                 stockList.filter {
                     it.name != "Apple" && it.name != "Microsoft"
